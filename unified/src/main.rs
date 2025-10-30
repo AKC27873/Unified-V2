@@ -75,10 +75,24 @@ axum::Server::bind(&addr)
 
 
 async fn status(State(state): State<Arc<AppState>>) -> Json<serde_json::Vaule> {
-    Json(serde_json::json!({)
+    Json(serde_json::json!({
+        "status": "running",
+        "neo4": state.neo4_url,
+    }))
+
 }
 
-
+async fn trigger_collect(State(state): State<Arc<AppState>>) -> Json<serde_json::value> {
+    // spawn an immediate collection (fire-and-forget)
+    let s = state.clone();
+    tokio::spawn(async move {
+        let mut c = Collector::new((*s).clone());
+        if let Err(e) = c.collect_and_send().await {
+            tracing::error!("manual collect error: {:?}", e);
+        }
+    });
+    Json(serde_json::json!({"queded": true}))
+} 
 
 
 

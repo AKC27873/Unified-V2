@@ -21,3 +21,8 @@ impl Collector {
 		Self {state}
 	}
 }
+
+
+pub async fn collector_and_send(&mut self) -> Result<(), anyhow:Error> {
+	let user = json!({"label":"User","props"})
+}

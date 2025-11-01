@@ -1,0 +1,42 @@
+[packages]
+name = "unified"
+version = "1.0.0"
+edition = "2021"
+authors = ["akc27873"]
+
+
+[dependencies]
+tokio = {version = "1.35", features = ["fs", "cors"]}
+sysinfo = "0.30"
+axum = "0.7"
+tower = "0.4"
+serde = {version = "1.0", features = ["derive"]}
+serde_json = "1.0"
+anyhow = "1.0"
+thiserror = "1.0"
+clap = {version = "4.4", features =["derive"]}
+env_logger = "0.11"
+log = "0.4"
+chrono = {version = "0.4", features = ["serde"]}
+regex = "1.10"
+toml = "0.8"
+notify = "6.1"
+
+
+
+# Cross Platform dependencies
+[target. 'cfg(unix)'.dependencies]
+nix = {version = "0.27", featurs = ["process", "signal"]}
+procfs = "0.16"
+
+[target. 'cfg(windows)'.dependencies]
+winapi = {version = "0.3", features = ["pdh", "tlhelp32", "processthreadsapi", "winsock2"]}
+windows = {version = "0.52", features = ["Win32_System_ProcessStatus", "Win32_NetworkManagment_IpHelper"]}
+
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
+

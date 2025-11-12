@@ -85,7 +85,74 @@ impl LogMonitor {
 				pattern: Regex::new(r"(?i)(failed|failure).*(password|authentication|login)").unwrap(),
 				level: AlertLevel::Critical,
 			},
-			
-		]	
+			LogRule {
+				name: "Sudo Usage".to_string(),
+				pattern: Regex::new(r"sudo:.*COMMAND=").unwrap(),
+				level: AlertLevel::Info,
+			},
+			LogRule {
+				name: "SSH Login".to_string(),
+				pattern: Regex::new(r"(?i)sshd.*accepted|session opened").unwrap(),
+				level: AlertLevel::Info,
+			},
+			LogRule {
+				name: "Service Failure".to_string(),
+				pattern: Regex::new(r"(?i)Systemd.*failed|service.*failed").unwrap(),
+				level: AlertLevel::Warning,	
+			},	
+		];
+
+		Self {
+			log_paths,
+			alert_manager,
+			rules,
+		}	
 	}
+
+	pub async fn start(&self) -> anyhow::Result<()> {
+		info!("Starting log monitoring for {} paths", self.log_paths.len());
+
+		let (tx, mut rx) = tokio::sync::mpsc::channel(100);
+
+		// Setup file watcher
+		let mut watcher = notify::recommended_watcher(move |res: Result<Event, notify::Error>| {
+			if let Ok(event) = res {
+				let _ = tx.blocking_send(event);
+			}
+		})?;
+		for path in &self.log_paths {
+			if let Ok(p) = Path::new(path).canonicalize(){
+				watcher.watch(&p, RecursiveMode::NonRecursive)?;
+				info!("Watching log file: {}", p.display());		
+			} else {
+				warn!("Could not watch log file: {}", path);
+			}
+		}
+		//Process file events 
+		while let Some(event) = rx.recv().await {
+			if let notify::EventKind::Modify(_) = event.kind {
+				for path in event.paths {
+					self.process_log_file(&path).await;
+				}
+			}
+		}
+		Ok(())
+	}
+	async fn process_log_file(&self, path: &Path){
+		if let Ok(content) = tokio::fs::read_to_string(path).await{
+			for line in content.lines().rev().rev(50){
+				for rule in &self.rules{
+					if rule.pattern.is_match(line){
+						let alert = Alert {
+							level: rule.level.clone(),
+							title: rul.name.clone(),
+							message: format!("Matched in {}: {}", path.display(), line.trim()),
+							timestamp: chrono::Utc::now(),
+						};
+					}	
+					self.alert_manager.write().await.add_alert(alert);
+				}
+			}
+		}
+	}	
 }

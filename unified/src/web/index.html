@@ -1,13 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Unifed Security Monitor</title>
-	<link rel="stylesheet" href="styles.css">
-	<script src="script.js"></script> 
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unified Security Monitor</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div class="container">
+        <header>
+            <h1>Unified Security Monitor</h1>
+            <p class="subtitle">Real-time system security monitoring and threat detection</p>
+        </header>
 
+        <div class="dashboard">
+            <div class="card">
+                <h2>System Overview</h2>
+                <div id="systemStats">
+                    <div class="stat">
+                        <span class="stat-label">CPU Cores</span>
+                        <span class="stat-value" id="cpuCount">-</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Memory Usage</span>
+                        <span class="stat-value" id="memoryUsage">-</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">System Uptime</span>
+                        <span class="stat-value" id="uptime">-</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="memoryBar" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Alert Summary</h2>
+                <div id="alertSummary">
+                    <div class="stat">
+                        <span class="stat-label">Critical</span>
+                        <span class="stat-value" style="color: #e74c3c" id="criticalCount">0</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Warnings</span>
+                        <span class="stat-value" style="color: #f39c12" id="warningCount">0</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Info</span>
+                        <span class="stat-value" style="color: #3498db" id="infoCount">0</span>
+                    </div>
+                </div>
+                <button class="btn" onclick="clearAlerts()" style="margin-top: 15px; width: 100%">Clear All Alerts</button>
+            </div>
+        </div>
+
+        <div class="card" style="margin-bottom: 30px;">
+            <h2>Recent Alerts</h2>
+            <div id="alerts"></div>
+        </div>
+
+        <div class="card" style="margin-bottom: 30px;">
+            <h2>Listening Ports</h2>
+            <div id="ports"></div>
+        </div>
+
+        <div class="card">
+            <h2>Vulnerabilities</h2>
+            <div id="vulnerabilities"></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
 </body>
 </html>
